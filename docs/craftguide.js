@@ -1,21 +1,23 @@
 "use strict";
 function searchItems(query) {
     let filtered = [];
-    for (let itemname in items) {
-        if (!query) {
-            filtered.push(itemname);
-        } else {
-            let item = items[itemname];
-            for (let word of query) {
-                word = word.toLowerCase();
-                if (itemname.indexOf(word) >= 0 || item.searchable_description.indexOf(word) >= 0) {
-                    filtered.push(itemname);
-                    break;
+    if (query && query.length > 0) {
+        for (let itemname in items) {
+            if (!query) {
+                filtered.push(itemname);
+            } else {
+                let item = items[itemname];
+                for (let word of query) {
+                    word = word.toLowerCase();
+                    if (itemname.indexOf(word) >= 0 || item.searchable_description.indexOf(word) >= 0) {
+                        filtered.push(itemname);
+                        break;
+                    }
                 }
             }
         }
+        filtered.sort();
     }
-    filtered.sort();
     return filtered;
 }
 
@@ -189,7 +191,7 @@ function updateListeners(base) {
 }
 
 function updateSearch() {
-    renderItemList(searchItems($("#search").val().split(/\s+/g)));
+    renderItemList(searchItems($("#search").val().split(/\s+/g).filter(word => word.length >= 3)));
     updateTooltips();
     updateListeners();
 }
