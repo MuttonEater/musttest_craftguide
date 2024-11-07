@@ -7,6 +7,9 @@ usages = {}
 crafts = {}
 groups = {}
 
+local mt_registered_items = minetest.registered_items
+local mt_get_item_group = minetest.get_item_group
+
 local function get_craft_recipes(def_name)
 	local item_crafts = minetest.get_all_craft_recipes(def_name)
 	if not item_crafts then
@@ -73,7 +76,33 @@ local function get_craft_recipes(def_name)
 					table.insert(tab, craft_index)
 				end
 			end
-		end
+
+			-- If the recipe item is a group, must add this recipe to every other
+			-- item having this group! Sigh.
+			if string.find(itemname, "^group:") then
+				local group_name = string.sub(itemname, 7)
+
+				-- Iterate over all registered items and check if they have this group.
+				for k, v in pairs(mt_registered_items) do
+					if mt_get_item_group(k, group_name) > 0 then
+						local itemname = ItemStack(k):get_name()
+						if not item_defs[itemname] then
+							usages[itemname] = { craft_index }
+						else
+							local tab = item_defs[itemname].usages
+							if not tab then
+								tab = {}
+								item_defs[itemname].usages = tab
+							end
+							if not modlib.table.find(tab, craft_index) then
+								table.insert(tab, craft_index)
+							end
+						end
+					end
+				end -- for k, v
+			end -- if string.find(itemname, "^group:")
+
+		end -- for _, item in ipairs(craft.items or {}) do
 	end
 
 	return item_crafts
