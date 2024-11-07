@@ -65,7 +65,10 @@ local function get_craft_recipes(def_name)
 			local itemname = ItemStack(item):get_name()
 
 			if not item_defs[itemname] then
-				usages[itemname] = { craft_index }
+				usages[itemname] = usages[itemname] or {}
+				if not modlib.table.find(usages[itemname], craft_index) then
+					table.insert(usages[itemname], craft_index)
+				end
 			else
 				local tab = item_defs[itemname].usages
 				if not tab then
@@ -87,7 +90,10 @@ local function get_craft_recipes(def_name)
 					if mt_get_item_group(k, group_name) > 0 then
 						local itemname = ItemStack(k):get_name()
 						if not item_defs[itemname] then
-							usages[itemname] = { craft_index }
+							usages[itemname] = usages[itemname] or {}
+							if not modlib.table.find(usages[itemname], craft_index) then
+								table.insert(usages[itemname], craft_index)
+							end
 						else
 							local tab = item_defs[itemname].usages
 							if not tab then
