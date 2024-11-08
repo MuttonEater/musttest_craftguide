@@ -86,7 +86,7 @@ function renderItemList(filtered) {
 
 function viewCraft(craft, highlighted) {
     let html = '<div class="d-flex align-items-center justify-content-start"><div class="container">';
-    let width = craft.width || craft.items.length;
+    let width = craft.width || Math.min(3, craft.items.length);
     let height = Math.ceil(craft.items.length/width);
 
     for (let y = 0; y < height; y++) {
