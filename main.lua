@@ -17,7 +17,13 @@ local function get_craft_recipes(def_name)
 	end
 
 	for index, craft in ipairs(item_crafts) do
-		local stack = ItemStack(craft.output)
+		-- Handle musttest_game's custom recipe types.
+		local craft_output = craft.output
+		if type(craft_output) == "table" then
+			craft_output = craft_output.output
+		end
+
+		local stack = ItemStack(craft_output)
 		local craft_items = {}
 		local width = craft.width > 0 and craft.width or 1
 
@@ -55,6 +61,7 @@ local function get_craft_recipes(def_name)
 
 		table.insert(crafts, {
 			method = craft.method,
+			type = craft.type,
 			shapeless = craft.width == 0,
 			width = craft.width ~= 0 and math.min(#craft_items, craft.width),
 			items = craft_items,

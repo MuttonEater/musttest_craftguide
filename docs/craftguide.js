@@ -98,7 +98,8 @@ function viewCraft(craft, highlighted) {
         }
         html += "</div>";
     }
-    let method = craft.method == "normal" ? "":'<span class="badge badge-primary py-1 my-1">'+craft.method+'</span>';
+    let type = !craft.type ? "" : '<span class="badge badge-primary py1 my-1">' + craft.type + '</span>';
+    let method = craft.method == "normal" ? type : '<span class="badge badge-primary py-1 my-1">'+craft.method+'</span>';
     method += craft.shapeless ? '<span class="badge badge-secondary py-1 my-1">shapeless</span>':"";
     return html+'</div>'+method+arrow+itemInfo(...craft.output)+"</div>";
 }
