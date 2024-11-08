@@ -174,6 +174,8 @@ function add_item(name, def)
 	local item = item_defs[def_name]
 	if not item then
 		local title, description = unpack(modlib.text.split(def.description, "\n", 2))
+		title = title and string.trim(title) or nil
+		description = description and string.trim(description) or nil
 
 		item = {
 			crafts = get_craft_recipes(def_name),
