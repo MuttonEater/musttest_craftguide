@@ -61,7 +61,7 @@ local function get_craft_recipes(def_name)
 			output = serialize_stack(stack)
 		})
 
-		for _, item in ipairs(craft.items or {}) do
+		for _, item in pairs(craft.items or {}) do
 			local itemname = ItemStack(item):get_name()
 
 			if not item_defs[itemname] then
