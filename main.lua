@@ -2,6 +2,39 @@ local function serialize_stack(stack)
 	return { stack:get_name() or "", stack:get_definition().type == "tool" and stack:get_wear() or stack:get_count() }
 end
 
+-- Handle non-standard recipes with multiple output items.
+-- Reference: musttest_game/mods/craft_register/init.lua
+local function serialize_output(output)
+	if type(output) == "string" then
+		-- If it's a string, it is very possibly an itemstring.
+		return { count = 1, items = { serialize_stack(ItemStack(output)) }}
+
+	elseif type(output) == "table" then
+		-- If it is a table, it could represent different things:
+		--   - An ItemStack serialized in its table representation.
+		--   - An output of a recipe with a non-standard craft method.
+
+		if output.name and output.name ~= "" then
+			-- It must be the table representation of an ItemStack.
+			return { count = 1, items = { serialize_stack(ItemStack(output)) }}
+
+		elseif type(output.output) == "string" then
+			-- It's the output of a non-standard craft recipe, with a single output.
+			return { count = 1, items = { serialize_stack(ItemStack(output.output)) }}
+		else
+			-- Here it could still be the output of a non-standard craft recipe with
+			-- single craft result, in its table representation. We assume it isn't.
+
+			-- It's the output of a non-standard craft recipe, with multiple outputs.
+			local ret = { count = #output.output, items = {} }
+			for _, v in ipairs(output.output) do
+				table.insert(ret.items, serialize_stack(ItemStack(v)))
+			end
+			return ret
+		end
+	end
+end
+
 item_defs = {}
 usages = {}
 crafts = {}
@@ -17,7 +50,6 @@ local function get_craft_recipes(def_name)
 	end
 
 	for index, craft in ipairs(item_crafts) do
-		local stack = ItemStack(craft.output)
 		local craft_items = {}
 		local width = craft.width > 0 and craft.width or 1
 
@@ -55,13 +87,14 @@ local function get_craft_recipes(def_name)
 
 		table.insert(crafts, {
 			method = craft.method,
+			type = craft.type,
 			shapeless = craft.width == 0,
 			width = craft.width ~= 0 and math.min(#craft_items, craft.width),
 			items = craft_items,
-			output = serialize_stack(stack)
+			output = serialize_output(craft.output) -- serialize_stack(stack)
 		})
 
-		for _, item in ipairs(craft.items or {}) do
+		for _, item in pairs(craft.items or {}) do
 			local itemname = ItemStack(item):get_name()
 
 			if not item_defs[itemname] then
@@ -141,6 +174,8 @@ function add_item(name, def)
 	local item = item_defs[def_name]
 	if not item then
 		local title, description = unpack(modlib.text.split(def.description, "\n", 2))
+		title = title and string.trim(title) or nil
+		description = description and string.trim(description) or nil
 
 		item = {
 			crafts = get_craft_recipes(def_name),
