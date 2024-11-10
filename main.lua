@@ -166,7 +166,15 @@ function minetest_to_searchable(text)
 end
 
 function add_item(name, def)
-	if (def.groups and def.groups.not_in_creative_inventory) or def.description == "" then
+	if def.groups and def.groups.not_in_creative_inventory then
+		return
+	end
+
+	if def.groups and def.groups.not_in_craft_guide then
+		return
+	end
+
+	if def.description == "" then
 		return
 	end
 
