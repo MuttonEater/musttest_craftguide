@@ -170,9 +170,9 @@ function add_item(name, def)
 		return
 	end
 
-	if def.groups and def.groups.not_in_craft_guide then
-		return
-	end
+	-- if def.groups and def.groups.not_in_craft_guide then
+	-- 	return
+	-- end
 
 	if def.description == "" then
 		return
