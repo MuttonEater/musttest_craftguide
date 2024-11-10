@@ -233,6 +233,14 @@ minetest.register_on_mods_loaded(function()
 	for name, def in pairs(minetest.registered_items) do
 		add_item(name, def)
 	end
+
+	-- Remove items if they don't have any crafts, nor usages.
+	for name, def in pairs(item_defs) do
+		if (not def.crafts or #def.crafts == 0) and (not def.usages or #def.usages == 0) then
+			item_defs[name] = nil
+		end
+	end
+
 	for _, item in pairs(item_defs) do
 		if item.aliases then
 			table.sort(item.aliases)
