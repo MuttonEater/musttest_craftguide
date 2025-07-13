@@ -117,10 +117,21 @@ local function get_craft_recipes(def_name)
 			-- item having this group! Sigh.
 			if string.find(itemname, "^group:") then
 				local group_name = string.sub(itemname, 7)
+				local group_names = string.split(group_name, ",")
 
 				-- Iterate over all registered items and check if they have this group.
 				for k, v in pairs(mt_registered_items) do
-					if mt_get_item_group(k, group_name) > 0 then
+					-- Handle multiple groups correctly: the item must be in *all* the
+					-- listed groups, if more.
+					local has_groups = true
+					for _, gn in ipairs(group_names) do
+						if mt_get_item_group(k, gn) == 0 then
+							has_groups = false
+							break
+						end
+					end
+
+					if has_groups then
 						local itemname = ItemStack(k):get_name()
 						if not item_defs[itemname] then
 							usages[itemname] = usages[itemname] or {}
